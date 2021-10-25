@@ -1,6 +1,6 @@
 package com.dev.devlog.api.exceptionhandler;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.dev.devlog.domain.exception.EntidadeNaoEncontradaException;
 import com.dev.devlog.domain.exception.NegocioException;
 
 import lombok.AllArgsConstructor;
@@ -39,7 +40,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		var problem = new Problem();
 		problem.setStatus(status.value());
-		problem.setDataHora(LocalDateTime.now());
+		problem.setDataHora(OffsetDateTime.now());
 		problem.setTitulo("Um ou mais campos estão inválidos.Preencha-os corretamente.");
 		problem.setCampos(campos);
 		return handleExceptionInternal(ex, problem, headers, status, request);
@@ -51,7 +52,19 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		var problem = new Problem();
 		problem.setStatus(status.value());
-		problem.setDataHora(LocalDateTime.now());
+		problem.setDataHora(OffsetDateTime.now());
+		problem.setTitulo(ex.getMessage());
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
+	
+	@ExceptionHandler(EntidadeNaoEncontradaException.class)
+	public ResponseEntity<Object> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex, WebRequest request) {
+		var status = HttpStatus.NOT_FOUND;
+		
+		var problem = new Problem();
+		problem.setStatus(status.value());
+		problem.setDataHora(OffsetDateTime.now());
 		problem.setTitulo(ex.getMessage());
 		
 		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
